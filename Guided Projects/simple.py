@@ -5,6 +5,9 @@ PRINT_NUM = 0b00000011  # opcode 3
 SAVE = 0b100
 PRINT_REG = 0b101    # opcode 5
 ADD = 0b110
+PUSH = 0b111
+POP = 0b1000  # opcode 8
+
 # registers[2] = registers[2] + registers[3]
 # memory = [
 #     PRINT_TIM,
@@ -55,6 +58,8 @@ load_memory(file_name)
 # We can loop over it!
 # register aka memory
 registers = [0] * 8
+
+registers[7] = 0xF4
 # [0,0,99,0,0,0,0,0]
 # R0-R7
 pc = 0  # program counter
@@ -83,4 +88,29 @@ while running:
         sec_reg = memory[pc + 2]
         registers[first_reg] = registers[first_reg] + registers[sec_reg]
         pc += 2
+
+    if command == PUSH:
+        # decrement the stack pointer
+        registers[7] -= 1
+        # get a value from the given register
+        reg = memory[pc + 1]
+        value = registers[reg]
+        # put the value at the stack pointer address
+        sp = registers[7]
+        memory[sp] = value
+        pc += 1
+
+    if command == POP:
+        # get the stack pointer (where do we look?)
+        sp = registers[7]
+        # get register number to put value in
+        reg = memory[pc + 1]
+        # use stack pointer to get the value
+        value = memory[sp]
+        # put the value into given register
+        registers[reg] = value
+        # increment our stack pointer
+        registers[7] += 1
+        # increment our program counter
+        pc += 1
     pc += 1

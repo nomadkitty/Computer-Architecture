@@ -13,4 +13,14 @@
 00000011  # R3
 00000101  # PRINT_REG
 00000010
+
+00000100  # SAVE
+00000100  # into R4
+00101010  # the number 42
+00000111  # PUSH
+00000100  # register number to look in number 4
+00001000  # POP <--PC
+00000011  # Register to pop into
+00000101  # PRINT_REG
+00000011  # R3
 00000010  # HALT
