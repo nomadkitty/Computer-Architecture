@@ -2,6 +2,10 @@
 
 import sys
 
+LDI = 0b10000010
+PRN = 0b01000111
+HLT = 0b00000001
+
 
 class CPU:
     """Main CPU class."""
@@ -12,11 +16,11 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0
 
-    def ram_read(self, MAR):  # accept Memory Address Register (MAR)
-        return self.ram[MAR]
+    def ram_read(self, mar):  # accept Memory Address Register (MAR)
+        return self.ram[mar]
 
-    def ram_write(self, MAR, MDR):  # accept Memory Data Register (MDR)
-        self.ram[MAR] = MDR
+    def ram_write(self, mar, mdr):  # accept Memory Data Register (MDR)
+        self.ram[mar] = mdr
 
     def load(self):
         """Load a program into memory."""
@@ -71,15 +75,15 @@ class CPU:
         """Run the CPU."""
         running = True
         while running:
-            IR = self.ram_read(self.pc)  # Instruction Register
-            if IR == 0b10000010:  # LDI R0,8
+            ir = self.ram_read(self.pc)  # Instruction Register
+            if ir == LDI:
                 reg_num = self.ram_read(self.pc + 1)
                 value = self.ram_read(self.pc + 2)
                 self.reg[reg_num] = value
                 self.pc += 3
-            elif IR == 0b01000111:  # PRN R0
+            elif ir == PRN:
                 reg_num = self.ram_read(self.pc + 1)
                 print(self.reg[reg_num])
                 self.pc += 2
-            elif IR == 0b00000001:  # HLT
+            elif ir == HLT:
                 running = False
