@@ -5,6 +5,7 @@ import sys
 LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
+MUL = 0b10100010
 
 
 class CPU:
@@ -58,6 +59,8 @@ class CPU:
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         # elif op == "SUB": etc
+        elif op == MUL:
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -85,14 +88,19 @@ class CPU:
         running = True
         while running:
             ir = self.ram_read(self.pc)  # Instruction Register
-            if ir == LDI:
-                reg_num = self.ram_read(self.pc + 1)
-                value = self.ram_read(self.pc + 2)
-                self.reg[reg_num] = value
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
+            if ir == HLT:
+                running = False
+            elif ir == LDI:
+                self.reg[operand_a] = operand_b
                 self.pc += 3
             elif ir == PRN:
                 reg_num = self.ram_read(self.pc + 1)
                 print(self.reg[reg_num])
                 self.pc += 2
-            elif ir == HLT:
-                running = False
+            elif ir == MUL:
+                self.alu(ir, operand_a, operand_b)
+                self.pc += 3
+            else:
+                print(f"Unknown Instruction: {ir}")
