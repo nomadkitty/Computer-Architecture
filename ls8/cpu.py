@@ -6,6 +6,8 @@ LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
 MUL = 0b10100010
+PUSH = 0b01000101
+POP = 0b01000110
 
 
 class CPU:
@@ -15,6 +17,7 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0] * 256
         self.reg = [0] * 8
+        self.reg[7] = 0xF4
         self.pc = 0
         self.running = True
         # set up branch table
@@ -23,6 +26,8 @@ class CPU:
         self.branchtable[LDI] = self.handle_LDI
         self.branchtable[PRN] = self.handle_PRN
         self.branchtable[MUL] = self.handle_MUL
+        self.branchtable[PUSH] = self.handle_PUSH
+        self.branchtable[POP] = self.handle_POP
 
     def ram_read(self, mar):  # accept Memory Address Register (MAR)
         return self.ram[mar]
@@ -75,6 +80,28 @@ class CPU:
         operand_a = self.ram_read(self.pc + 1)
         operand_b = self.ram_read(self.pc + 2)
         self.alu("MUL", operand_a, operand_b)
+
+    def handle_PUSH(self):
+        # decrement the stack pointer
+        self.reg[7] -= 1
+        # get a value from the given register
+        register = self.ram_read(self.pc + 1)
+        value = self.reg[register]
+        # put the value at the stack address
+        sp = self.reg[7]
+        self.ram[sp] = value
+
+    def handle_POP(self):
+        # get the stack pointer address
+        sp = self.reg[7]
+        # get a value from the given register
+        register = self.ram_read(self.pc + 1)
+        # use stack pointer to get the value
+        value = self.ram[sp]
+        # put the value into given register
+        self.reg[register] = value
+        # increment stack pointer
+        self.reg[7] += 1
 
     def trace(self):
         """
