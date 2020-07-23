@@ -15,6 +15,13 @@
 00000010
 
 00000100  # SAVE
+00000010  # into a register
+00011110  # the address to jump to
+00001001  # CALL
+00000010  # the register
+
+
+00000100  # SAVE
 00000100  # into R4
 00101010  # the number 42
 00000111  # PUSH
@@ -24,3 +31,17 @@
 00000101  # PRINT_REG
 00000011  # R3
 00000010  # HALT
+
+# begin our function!
+00000001  # PRINT_TIM
+00000001  # PRINT_TIM
+00000100  # SAVE
+00000000  # in a register
+00100110  # address of function to call
+00001001  # CALL second function
+00000000  # register to look at
+00001010  # RET
+# second function
+00000011  # PRINT_NUM
+01100011  # print 99
+00001010  # RET

@@ -90,26 +90,27 @@ while running:
     command = memory[pc]
     if command == PRINT_TIM:
         print("Tim!")
+        pc += 1
     if command == HALT:
         running = False
     if command == PRINT_NUM:
         num_to_print = memory[pc + 1]
         print(num_to_print)
-        pc += 1
+        pc += 2
     if command == SAVE:
         reg = memory[pc + 1]
         num_to_save = memory[pc + 2]
         registers[reg] = num_to_save
-        pc += 2
+        pc += 3
     if command == PRINT_REG:
         reg_index = memory[pc + 1]
         print(registers[reg_index])
-        pc += 1
+        pc += 2
     if command == ADD:
         first_reg = memory[pc + 1]
         sec_reg = memory[pc + 2]
         registers[first_reg] = registers[first_reg] + registers[sec_reg]
-        pc += 2
+        pc += 3
 
     if command == PUSH:
         # decrement the stack pointer
@@ -120,7 +121,7 @@ while running:
         # put the value at the stack pointer address
         sp = registers[7]
         memory[sp] = value
-        pc += 1
+        pc += 2
 
     if command == POP:
         # get the stack pointer (where do we look?)
@@ -134,7 +135,7 @@ while running:
         # increment our stack pointer
         registers[7] += 1
         # increment our program counter
-        pc += 1
+        pc += 2
 
     if command == CALL:
         # Get register number
@@ -158,5 +159,3 @@ while running:
         registers[7] += 1
         # go to return address: set the pc to return address
         pc = return_address
-
-    pc += 1
