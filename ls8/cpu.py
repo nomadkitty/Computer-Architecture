@@ -5,9 +5,12 @@ import sys
 LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
+ADD = 0b10100000
 MUL = 0b10100010
 PUSH = 0b01000101
 POP = 0b01000110
+CALL = 0b01010000
+RET = 0b00010001
 
 
 class CPU:
@@ -25,9 +28,12 @@ class CPU:
         self.branchtable[HLT] = self.handle_HLT
         self.branchtable[LDI] = self.handle_LDI
         self.branchtable[PRN] = self.handle_PRN
+        self.branchtable[ADD] = self.handle_ADD
         self.branchtable[MUL] = self.handle_MUL
         self.branchtable[PUSH] = self.handle_PUSH
         self.branchtable[POP] = self.handle_POP
+        self.branchtable[CALL] = self.handle_CALL
+        self.branchtable[RET] = self.handle_RET
 
     def ram_read(self, mar):  # accept Memory Address Register (MAR)
         return self.ram[mar]
@@ -76,6 +82,11 @@ class CPU:
         reg_num = self.ram_read(self.pc + 1)
         print(self.reg[reg_num])
 
+    def handle_ADD(self):
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+        self.alu("ADD", operand_a, operand_b)
+
     def handle_MUL(self):
         operand_a = self.ram_read(self.pc + 1)
         operand_b = self.ram_read(self.pc + 2)
@@ -102,6 +113,29 @@ class CPU:
         self.reg[register] = value
         # increment stack pointer
         self.reg[7] += 1
+
+    def handle_CALL(self):
+        # get the register number
+        reg = self.ram_read(self.pc + 1)
+        # get the address to jump to, from the register
+        address = self.reg[reg]
+        # push command after CALL onto the stack
+        return_address = self.pc + 2
+        # decrement stack pointer
+        self.reg[7] -= 1
+        sp = self.reg[7]
+        # put return address on the stack
+        self.ram[sp] = return_address
+        # look at register, jump to the address
+        self.pc = address
+
+    def handle_RET(self):
+        # pop the return address off the stack
+        sp = self.reg[7]
+        return_address = self.ram[sp]
+        self.reg[7] += 1
+        # go the return address: set the pc to return address
+        self.pc = return_address
 
     def trace(self):
         """
@@ -133,4 +167,5 @@ class CPU:
             if ir == 0 or None:
                 print(f"Unknown Instruction: {ir}")
                 sys.exit()
-            self.pc += ir_length
+            if ir != CALL and ir != RET:
+                self.pc += ir_length
